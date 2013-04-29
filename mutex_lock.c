@@ -11,6 +11,8 @@
 
 int pthread_mutex_lock(pthread_mutex_t *mutex)
 {
+    init();
+
     struct thread *t = find_thread(pthread_self());
     struct mutex *n = find_mutex(mutex);
 

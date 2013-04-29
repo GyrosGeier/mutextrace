@@ -12,6 +12,8 @@
 
 int pthread_mutex_init(pthread_mutex_t *mutex, pthread_mutexattr_t const *attr)
 {
+    init();
+
     struct mutex *n = find_mutex(mutex);
 
     fprintf(stderr, "init #%u\n", n->num);

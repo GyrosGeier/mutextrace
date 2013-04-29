@@ -11,6 +11,8 @@
 
 int pthread_mutex_unlock(pthread_mutex_t *mutex)
 {
+    init();
+
     struct mutex *n = find_mutex(mutex);
 
     real_mutex_lock(&n->lock);

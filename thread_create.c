@@ -54,6 +54,8 @@ int pthread_create(
         void *(*start_routine)(void*),
         void *arg)
 {
+    init();
+
     struct startupinfo sui = { start_routine, arg, {}, {} };
     real_cond_init(&sui.cond, 0);
     real_mutex_init(&sui.mutex, 0);

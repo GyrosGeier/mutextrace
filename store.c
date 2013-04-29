@@ -61,6 +61,8 @@ struct thread *find_thread(pthread_t thread)
 
 struct mutex *create_mutex(void)
 {
+    init();
+
     static unsigned int num;
 
     struct mutex *new_mutex = (struct mutex *)malloc(sizeof(struct mutex));

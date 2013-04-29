@@ -14,4 +14,6 @@ extern int (*real_cond_init)(pthread_cond_t *, pthread_condattr_t const *);
 extern int (*real_cond_wait)(pthread_cond_t *, pthread_mutex_t *);
 extern int (*real_cond_signal)(pthread_cond_t *);
 
+void init(void);
+
 #endif
