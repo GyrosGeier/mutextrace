@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([mutextrace], [0.1.2], [Simon.Richter@hogyros.de])
+AC_INIT([mutextrace], [0.1.3], [Simon.Richter@hogyros.de])
 AM_INIT_AUTOMAKE([1.10 foreign])
 AM_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES([Makefile tests/Makefile])
