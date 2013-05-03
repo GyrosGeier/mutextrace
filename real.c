@@ -6,7 +6,10 @@
 
 #include "real.h"
 
-#include <dlfcn.h>
+#include <stdlib.h>
+
+#include <link.h>
+#include <string.h>
 
 int (*real_create)(pthread_t *, pthread_attr_t const *, void *(*)(void *), void *);
 
@@ -27,14 +30,56 @@ void init(void)
 
     initialized = 1;
 
-    real_create = dlsym(RTLD_NEXT, "pthread_create");
-    real_mutex_init = dlsym(RTLD_NEXT, "pthread_mutex_init");
-    real_mutex_destroy = dlsym(RTLD_NEXT, "pthread_mutex_destroy");
-    real_mutex_lock = dlsym(RTLD_NEXT, "pthread_mutex_lock");
-    real_mutex_unlock = dlsym(RTLD_NEXT, "pthread_mutex_unlock");
-    real_cond_init = dlsym(RTLD_NEXT, "pthread_cond_init");
-    real_cond_wait = dlsym(RTLD_NEXT, "pthread_cond_wait");
-    real_cond_signal = dlsym(RTLD_NEXT, "pthread_cond_signal");
+    struct link_map *map = _r_debug.r_map;
+
+    if(!map)
+        abort();
+
+    for(; map; map = map->l_next)
+    {
+        if(strstr(map->l_name, "libpthread.so"))
+        {
+            ElfW(Dyn) *dyn;
+            ElfW(Sym) *symtab = 0;
+            char const *strtab = 0;
+            unsigned int nsymbols = 0;
+
+            for(dyn = map->l_ld; dyn->d_tag != DT_NULL; ++dyn)
+            {
+                if(dyn->d_tag == DT_SYMTAB)
+                    symtab = (ElfW(Sym) *)dyn->d_un.d_ptr;
+                else if(dyn->d_tag == DT_STRTAB)
+                    strtab = (char const *)dyn->d_un.d_ptr;
+                else if(dyn->d_tag == DT_HASH)
+                    nsymbols = ((unsigned int *)dyn->d_un.d_ptr)[1];
+            }
+
+            if(!symtab || !strtab || !nsymbols)
+                abort();
+
+            for(; nsymbols; ++symtab, --nsymbols)
+            {
+                char const *name = strtab + symtab->st_name;
+                void *value = (void *)symtab->st_value + map->l_addr;
+                if(!strcmp(name, "pthread_create"))
+                    real_create = value;
+                else if(!strcmp(name, "pthread_mutex_init"))
+                    real_mutex_init = value;
+                else if(!strcmp(name, "pthread_mutex_destroy"))
+                    real_mutex_destroy = value;
+                else if(!strcmp(name, "pthread_mutex_lock"))
+                    real_mutex_lock = value;
+                else if(!strcmp(name, "pthread_mutex_unlock"))
+                    real_mutex_unlock = value;
+                else if(!strcmp(name, "pthread_cond_init"))
+                    real_cond_init = value;
+                else if(!strcmp(name, "pthread_cond_wait"))
+                    real_cond_wait = value;
+                else if(!strcmp(name, "pthread_cond_signal"))
+                    real_cond_signal = value;
+            }
+        }
+    }
 
     return;
 }

@@ -16,6 +16,6 @@ mutextrace_la_SOURCES = \
     store.c store.h \
     thread_create.c
 mutextrace_la_LDFLAGS = -module -avoid-version -no-undefined -Wl,-z,defs
-mutextrace_la_LIBADD = @LIBDL@ @LIBPTHREAD@
+mutextrace_la_LIBADD = @LIBPTHREAD@
 
 EXTRA_DIST = COPYING

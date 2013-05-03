@@ -16,7 +16,6 @@ AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create], [AC_SUBST([LIBPTHREAD], [-lpthread])], [AC_MSG_ERROR([*** libpthread missing])])
-AC_CHECK_LIB([dl], [dlsym], [AC_SUBST([LIBDL], [-ldl])], [AC_MSG_ERROR([*** libdl missing])])
 
 # Checks for header files.
 
