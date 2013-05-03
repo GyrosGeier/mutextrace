@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
@@ -20,7 +21,6 @@ int main(int argc, char **argv, char **envp)
     char *new_envp[max_envs];
     char new_preload[max_preload];
 
-    char pathbuf[PATH_MAX];
     char *path = 0;
 
     char **i, **o;
@@ -86,15 +86,40 @@ int main(int argc, char **argv, char **envp)
     {
         ii = path;
 
+        size_t cmdlen = strlen(argv[1]) + 2;   // plus slash and NUL
+
+        size_t pathbuf_size = 1024;
+        char *pathbuf = malloc(pathbuf_size);
+        if(!pathbuf)
+        {
+                perror("malloc()");
+                return 1;
+        }
+
         while(*ii)
         {
             oo = pathbuf;
             for(; *ii && *ii != ':'; ++ii, ++oo)
+            {
+                if(oo == pathbuf + pathbuf_size - cmdlen)
+                {
+                    char *old_pathbuf = pathbuf;
+                    pathbuf_size <<= 1;
+                    pathbuf = realloc(pathbuf, pathbuf_size);
+                    if(!pathbuf)
+                    {
+                            perror("realloc()");
+                            return 1;
+                    }
+                    oo = (oo - old_pathbuf) + pathbuf;
+                }
                 *oo = *ii;
+            }
 
             if(oo == pathbuf)
             {
                 fprintf(stderr, "Empty element in PATH\n");
+                free(pathbuf);
                 return 1;
             }
             
@@ -105,11 +130,14 @@ int main(int argc, char **argv, char **envp)
             {
                 execve(pathbuf, new_argv, new_envp);
                 fprintf(stderr, "Failed to run %s: %s\n", pathbuf, strerror(errno));
+                free(pathbuf);
                 return 1;
             }
 
             ++ii;
         }
+
+        free(pathbuf);
     }
 
     fprintf(stderr, "Could not find %s in PATH\n", argv[1]);
