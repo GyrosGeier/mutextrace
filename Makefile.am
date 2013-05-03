@@ -5,6 +5,7 @@ bin_PROGRAMS = mutextrace
 pkglib_LTLIBRARIES = mutextrace.la
 
 mutextrace_SOURCES = mutextrace.c
+mutextrace_CPPFLAGS = $(AM_CPPFLAGS) -DPRELOADLIB=\"$(pkglibdir)/mutextrace.so\"
 
 mutextrace_la_SOURCES = \
     mutex_destroy.c \
@@ -16,7 +17,5 @@ mutextrace_la_SOURCES = \
     thread_create.c
 mutextrace_la_LDFLAGS = -module -avoid-version -no-undefined -Wl,-z,defs
 mutextrace_la_LIBADD = @LIBDL@ @LIBPTHREAD@
-
-DEFS = -DPRELOADLIB=\"$(pkglibdir)/mutextrace.so\"
 
 EXTRA_DIST = COPYING
