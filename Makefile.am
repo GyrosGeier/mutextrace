@@ -17,6 +17,6 @@ mutextrace_la_SOURCES = \
 mutextrace_la_LDFLAGS = -module -avoid-version -no-undefined -Wl,-z,defs
 mutextrace_la_LIBADD = @LIBDL@ @LIBPTHREAD@
 
-DEFS = -D_GNU_SOURCE -DPRELOADLIB=\"$(pkglibdir)/mutextrace.so\"
+DEFS = -DPRELOADLIB=\"$(pkglibdir)/mutextrace.so\"
 
 EXTRA_DIST = COPYING

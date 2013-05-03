@@ -2,6 +2,8 @@
 #include <config.h>
 #endif
 
+#define _GNU_SOURCE 1
+
 #include "store.h"
 #include "real.h"
 
