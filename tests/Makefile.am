@@ -6,8 +6,12 @@ check_PROGRAMS = \
     mutextrace \
     $(TESTS)
 
+check_LIBRARIES = libcommon.a
+
+libcommon_a_SOURCES = common.c
+
 mutextrace_SOURCES = ../mutextrace.c
 mutextrace_CPPFLAGS = $(AM_CPPFLAGS) -DPRELOADLIB=\"$(top_builddir)/.libs/mutextrace.so\"
 
 LDFLAGS = -no-install
-LDADD = @LIBPTHREAD@
+LDADD = libcommon.a @LIBPTHREAD@

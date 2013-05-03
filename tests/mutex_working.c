@@ -6,7 +6,7 @@
 
 #include <pthread.h>
 
-int main()
+int test_main()
 {
     pthread_mutex_t mutex;
 

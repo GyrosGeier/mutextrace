@@ -18,7 +18,7 @@ void *thread_func(void *p)
     return 0;
 }
 
-int main()
+int test_main()
 {
     pthread_t thread;
     pthread_mutex_t mutex;
