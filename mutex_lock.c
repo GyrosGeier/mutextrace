@@ -21,7 +21,10 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
     real_mutex_lock(&n->lock);
     struct thread *owner = n->owner;
     if(owner)
+    {
+        fprintf(stderr, "[%u] mutex_lock(%u) <waiting for thread %u> ...\n", t->num, n->num, owner->num);
         real_cond_wait(&n->cond, &n->lock);
+    }
     int ret = real_mutex_lock(mutex);
 
     n->owner = t;
@@ -30,9 +33,9 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
     real_mutex_unlock(&n->lock);
 
     if(owner)
-        fprintf(stderr, "lock #%u, thread %u -> thread %u\n", n->num, owner->num, t->num);
+        fprintf(stderr, "[%u] ... mutex_lock(%u)\n", t->num, n->num);
     else
-        fprintf(stderr, "lock #%u, free -> thread %u\n", n->num, t->num);
+        fprintf(stderr, "[%u] mutex_lock(%u)\n", t->num, n->num);
 
     return ret;
 }

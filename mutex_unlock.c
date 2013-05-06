@@ -15,6 +15,7 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
 {
     init();
 
+    struct thread *t = find_thread(pthread_self());
     struct mutex *n = find_mutex(mutex);
 
     real_mutex_lock(&n->lock);
@@ -23,7 +24,7 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
     int res = real_mutex_unlock(mutex);
     real_mutex_unlock(&n->lock);
 
-    fprintf(stderr, "unlock #%u\n", n->num);
+    fprintf(stderr, "[%u] mutex_unlock(%u)\n", t->num, n->num);
 
     return res;
 }

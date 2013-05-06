@@ -16,9 +16,10 @@ int pthread_mutex_init(pthread_mutex_t *mutex, pthread_mutexattr_t const *attr)
 {
     init();
 
+    struct thread *t = find_thread(pthread_self());
     struct mutex *n = find_mutex(mutex);
 
-    fprintf(stderr, "init #%u\n", n->num);
+    fprintf(stderr, "[%u] mutex_init(%u)\n", t->num, n->num);
     real_mutex_lock(&n->lock);
     n->state = unlocked;
 

@@ -21,7 +21,7 @@ static void cleanup(void *thread)
 {
     struct thread *t = (struct thread *)thread;
 
-    fprintf(stderr, "thread exit #%u\n", t->num);
+    fprintf(stderr, "[%u] finished (normal exit)\n", t->num);
 }
 
 static void *startup(void *startupinfo)
@@ -37,7 +37,7 @@ static void *startup(void *startupinfo)
 
     struct thread *t = find_thread(pthread_self());
 
-    fprintf(stderr, "thread create #%u\n", t->num);
+    fprintf(stderr, "[%u] started\n", t->num);
 
     void *res;
 
