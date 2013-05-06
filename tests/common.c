@@ -60,14 +60,39 @@ int main(int argc, char **argv, char **envp)
                 {
                         close(fds[1]);
 
+                        bool seen_timeout = false;
                         bool fail = false;
 
                         unsigned int offset = 0;
 
                         char buffer[64];
-                        ssize_t count; 
-                        while((count = read(fds[0], buffer, sizeof buffer)) > 0)
+                        while(offset < test_results_len)
                         {
+                                fd_set readfds;
+                                FD_ZERO(&readfds);
+                                FD_SET(fds[0], &readfds);
+
+                                struct timeval timeout = { 1, 0 };
+
+                                int rc = select(fds[0] + 1, &readfds, 0, 0, &timeout);
+
+                                if(rc == 0)
+                                {
+                                        kill(child, SIGKILL);
+                                        seen_timeout = true;
+                                        break;
+                                }
+
+                                ssize_t count = read(fds[0], buffer, sizeof buffer);
+
+                                if(count == 0)
+                                        break;
+                                if(count == -1)
+                                {
+                                        fail = true;
+                                        break;
+                                }
+
                                 unsigned int i;
                                 for(i = 0; i < count && offset < test_results_len; ++i, ++offset)
                                 {
@@ -80,6 +105,9 @@ int main(int argc, char **argv, char **envp)
                         }
 
                         fail = fail || (offset != test_results_len - 1);
+
+                        fail = fail || (seen_timeout && !test_result_timeout);
+                        fail = fail || (!seen_timeout && test_result_timeout);
 
                         if(fail)
                         {
@@ -103,6 +131,9 @@ int main(int argc, char **argv, char **envp)
 
                         if(fail && !status)
                                 return 1;
+
+                        if(seen_timeout)
+                                return !(WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL);
 
                         return status;
                 }

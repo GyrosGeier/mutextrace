@@ -1,5 +1,6 @@
 TESTS = \
     mutex_working \
+    mutex_timeout \
     two_threads_one_mutex
 
 check_PROGRAMS = \

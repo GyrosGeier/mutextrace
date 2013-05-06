@@ -62,3 +62,4 @@ char const test_results[] =
     "[1] mutex_destroy(1)\n";
 
 unsigned int const test_results_len = sizeof test_results;
+bool const test_result_timeout = false;
