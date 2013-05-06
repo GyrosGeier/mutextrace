@@ -22,6 +22,12 @@ int (*real_cond_init)(pthread_cond_t *, pthread_condattr_t const *);
 int (*real_cond_wait)(pthread_cond_t *, pthread_mutex_t *);
 int (*real_cond_signal)(pthread_cond_t *);
 
+#ifdef __mips__
+#define OFFSET(x) ((x) + (map->l_addr))
+#else
+#define OFFSET(x) (x)
+#endif
+
 void init(void)
 {
     static int initialized = 0;
@@ -47,11 +53,11 @@ void init(void)
             for(dyn = map->l_ld; dyn->d_tag != DT_NULL; ++dyn)
             {
                 if(dyn->d_tag == DT_SYMTAB)
-                    symtab = (ElfW(Sym) *)dyn->d_un.d_ptr;
+                    symtab = (ElfW(Sym) *)OFFSET(dyn->d_un.d_ptr);
                 else if(dyn->d_tag == DT_STRTAB)
-                    strtab = (char const *)dyn->d_un.d_ptr;
+                    strtab = (char const *)OFFSET(dyn->d_un.d_ptr);
                 else if(dyn->d_tag == DT_HASH)
-                    nsymbols = ((unsigned int *)dyn->d_un.d_ptr)[1];
+                    nsymbols = ((unsigned int *)OFFSET(dyn->d_un.d_ptr))[1];
             }
 
             if(!symtab || !strtab || !nsymbols)
