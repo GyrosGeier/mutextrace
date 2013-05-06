@@ -24,3 +24,11 @@ int test_main()
 
     return 0;
 }
+
+char const test_results[] =
+    "[1] mutex_init(1, FAST)\n"
+    "[1] mutex_lock(1)\n"
+    "[1] mutex_unlock(1)\n"
+    "[1] mutex_destroy(1)\n";
+
+unsigned int const test_results_len = sizeof test_results;

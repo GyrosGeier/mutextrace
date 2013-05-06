@@ -6,13 +6,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/wait.h>
 
-int test_main(void);
+#include "common.h"
 
 int main(int argc, char **argv, char **envp)
 {
@@ -39,7 +40,7 @@ int main(int argc, char **argv, char **envp)
 
                 if(child == 0)
                 {
-                        dup2(STDERR_FILENO, fds[1]);
+                        dup2(fds[1], STDERR_FILENO);
                         close(fds[0]);
                         close(fds[1]);
 
@@ -59,16 +60,49 @@ int main(int argc, char **argv, char **envp)
                 {
                         close(fds[1]);
 
+                        bool fail = false;
+
+                        unsigned int offset = 0;
+
                         char buffer[64];
-                        ssize_t count;
+                        ssize_t count; 
                         while((count = read(fds[0], buffer, sizeof buffer)) > 0)
                         {
-                                write(STDERR_FILENO, buffer, count);
+                                unsigned int i;
+                                for(i = 0; i < count && offset < test_results_len; ++i, ++offset)
+                                {
+                                        if(buffer[i] != test_results[offset])
+                                        {
+                                                fail = true;
+                                                break;
+                                        }
+                                }
+                        }
+
+                        fail = fail || (offset != test_results_len - 1);
+
+                        if(fail)
+                        {
+                                unsigned int line = 1;
+                                unsigned int col = 1;
+                                unsigned int i;
+                                for(i = 0; i < offset; ++i, ++col)
+                                {
+                                        if(test_results[i] == '\n')
+                                        {
+                                                ++line;
+                                                col = 0;
+                                        }
+                                }
+                                fprintf(stderr, "%s:%u:%u\n", argv[0], line, col);
                         }
 
                         int status;
 
                         waitpid(child, &status, 0);
+
+                        if(fail && !status)
+                                return 1;
 
                         return status;
                 }
