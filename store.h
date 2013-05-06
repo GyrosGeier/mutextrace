@@ -37,6 +37,7 @@ struct mutex
 
     unsigned int num;
     enum state state;
+    int kind;
 
     /* Ownership tracking */
     struct thread *owner;
