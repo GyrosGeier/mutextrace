@@ -8,6 +8,8 @@
 #include "real.h"
 
 #include <stdio.h>
+#include <errno.h>
+#include <sys/time.h>
 
 #include <pthread.h>
 
@@ -23,7 +25,15 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
     if(owner)
     {
         fprintf(stderr, "[%u] mutex_lock(%u) <waiting for thread %u> ...\n", t->num, n->num, owner->num);
-        real_cond_wait(&n->cond, &n->lock);
+        struct timeval starttime;
+        gettimeofday(&starttime, 0);
+        struct timespec timeout = { starttime.tv_sec, starttime.tv_usec * 1000 };
+        timeout.tv_sec += 5;
+        while(real_cond_timedwait(&n->cond, &n->lock, &timeout) == ETIMEDOUT)
+        {
+                fprintf(stderr, "[%u] ... mutex_lock(%u) <still waiting for thread %u> ...\n", t->num, n->num, owner->num);
+                timeout.tv_sec += 5;
+        }
     }
     int ret = real_mutex_lock(mutex);
 

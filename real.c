@@ -20,6 +20,7 @@ int (*real_mutex_unlock)(pthread_mutex_t *);
 
 int (*real_cond_init)(pthread_cond_t *, pthread_condattr_t const *);
 int (*real_cond_wait)(pthread_cond_t *, pthread_mutex_t *);
+int (*real_cond_timedwait)(pthread_cond_t *, pthread_mutex_t *, struct timespec const *);
 int (*real_cond_signal)(pthread_cond_t *);
 
 #ifdef __mips__
@@ -81,6 +82,8 @@ void init(void)
                     real_cond_init = value;
                 else if(!strcmp(name, "pthread_cond_wait"))
                     real_cond_wait = value;
+                else if(!strcmp(name, "pthread_cond_timedwait"))
+                    real_cond_timedwait = value;
                 else if(!strcmp(name, "pthread_cond_signal"))
                     real_cond_signal = value;
             }
